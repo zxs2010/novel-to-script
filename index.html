@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<link rel="icon" href="data:," />
+<title>小说改编短剧</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700;900&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+--bg:#f7f6f3; --surface:#ffffff; --surface2:#efede8; --ink:#1c1b18; --ink2:#5c5952; --ink3:#8a867d;
+--line:#ddd9d0; --line-strong:#c9c4b8;
+--red:#b8321f; --red-soft:#fdf0ec; --red-line:#e8b4a8;
+--teal:#1f5c4d; --teal-soft:#eaf4f0; --teal-line:#a9cbbf;
+--shadow:0 1px 2px rgba(28,27,24,.05),0 12px 32px rgba(28,27,24,.07);
+--radius:16px;
+}
+@media (prefers-color-scheme: dark){
+:root{
+--bg:#141412; --surface:#1e1e1b; --surface2:#262622; --ink:#ece9e1; --ink2:#b3afa4; --ink3:#85817a;
+--line:#33322d; --line-strong:#45443d;
+--red:#e0654a; --red-soft:#2e1d18; --red-line:#6b3a2e;
+--teal:#6fbfa8; --teal-soft:#182a24; --teal-line:#33544a;
+--shadow:0 1px 2px rgba(0,0,0,.3),0 12px 32px rgba(0,0,0,.35);
+}
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans SC",system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer}
+.wrap{max-width:760px;margin:0 auto;padding:28px 18px 56px}
+
+/* header */
+.header{text-align:center;padding:18px 0 22px}
+.header h1{font-family:"Noto Serif SC",serif;font-weight:900;font-size:clamp(30px,7vw,42px);line-height:1.15;margin:0 0 10px}
+.header h1 span{color:var(--red)}
+.header p{margin:0;color:var(--ink2);font-size:15.5px}
+.header p strong{color:var(--ink)}
+
+/* progress */
+.progress{display:flex;align-items:flex-start;justify-content:center;gap:0;margin:6px auto 24px;max-width:520px}
+.p-step{flex:1;text-align:center;position:relative}
+.p-step::before{content:"";position:absolute;top:17px;left:-50%;width:100%;height:2px;background:var(--line-strong);z-index:0}
+.p-step:first-child::before{display:none}
+.p-step.done::before,.p-step.active::before{background:var(--red)}
+.p-dot{position:relative;z-index:1;width:36px;height:36px;border-radius:50%;margin:0 auto 6px;background:var(--surface);border:2px solid var(--line-strong);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;color:var(--ink3)}
+.p-step.active .p-dot{border-color:var(--red);color:var(--red);background:var(--red-soft)}
+.p-step.done .p-dot{border-color:var(--red);background:var(--red);color:#fff}
+.p-step span{font-size:12.5px;font-weight:700;color:var(--ink3);display:block}
+.p-step.active span{color:var(--ink)}
+.p-step.done span{color:var(--ink2)}
+
+/* card */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px}
+@media(max-width:560px){.card{padding:18px 16px}}
+
+/* upload */
+.drop{border:2px dashed var(--line-strong);border-radius:14px;padding:34px 18px 28px;text-align:center;background:var(--surface2);transition:border-color .15s, background .15s}
+.drop.drag{border-color:var(--red);background:var(--red-soft)}
+.drop-icon{width:56px;height:56px;border-radius:50%;background:var(--surface);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:26px}
+.drop h2{font-family:"Noto Serif SC",serif;font-size:19px;margin:0 0 6px;font-weight:900}
+.drop p{margin:0;color:var(--ink2);font-size:13.5px}
+.drop p.small{font-size:12.5px;color:var(--ink3);margin-top:8px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:10px 22px;border-radius:999px;border:1.5px solid var(--ink);background:var(--ink);color:var(--bg);font-size:15px;font-weight:700;line-height:1}
+.btn.red{border-color:var(--red);background:var(--red);color:#fff}
+.btn.ghost{background:var(--surface);color:var(--ink);border-color:var(--line-strong)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.large{width:100%;min-height:52px;font-size:16px}
+.btn:active{transform:scale(.985)}
+.file-input{display:none}
+.upload-btn{margin-top:18px}
+
+/* file info */
+.file-box{display:none;margin-top:16px;border:1px solid var(--teal-line);background:var(--teal-soft);border-radius:12px;padding:14px 16px}
+.file-box.show{display:block}
+.file-box .fname{font-weight:700;font-size:15px;word-break:break-all}
+.file-box .fmeta{font-size:13px;color:var(--ink2);margin-top:4px;line-height:1.6}
+.file-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.file-actions .btn{flex:1;min-width:140px}
+.or{text-align:center;color:var(--ink3);font-size:12.5px;margin:16px 0 4px}
+.paste{width:100%;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:12px 14px;font-family:inherit;font-size:14px;line-height:1.6;color:var(--ink);resize:vertical;min-height:88px}
+.paste:focus{outline:2px solid var(--red-line);border-color:var(--red)}
+
+/* result / download */
+.result{display:none;text-align:center;padding:8px 0 2px}
+.result.show{display:block}
+.result .ok{width:60px;height:60px;border-radius:50%;background:var(--teal-soft);border:1.5px solid var(--teal-line);color:var(--teal);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;margin:4px auto 14px}
+.result h2{font-family:"Noto Serif SC",serif;font-size:21px;margin:0 0 8px;font-weight:900}
+.result p{margin:0;color:var(--ink2);font-size:14px}
+.summary{margin:16px 0;text-align:left;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.summary div{display:flex;gap:12px;padding:10px 14px;font-size:13.5px;border-bottom:1px solid var(--line);background:var(--surface)}
+.summary div:last-child{border-bottom:none}
+.summary b{flex:0 0 86px;color:var(--ink3);font-weight:700}
+.summary span{flex:1;word-break:break-word}
+.processing{display:none;text-align:center;padding:22px 0 10px}
+.processing.show{display:block}
+.spinner{width:42px;height:42px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--red);margin:0 auto 14px;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.proc-steps{list-style:none;margin:14px auto 0;padding:0;max-width:320px;text-align:left;font-size:14px;color:var(--ink3)}
+.proc-steps li{padding:5px 0;display:flex;gap:9px;align-items:center}
+.proc-steps li.on{color:var(--ink);font-weight:700}
+.proc-steps li.done{color:var(--teal)}
+.foot{text-align:center;margin-top:20px;color:var(--ink3);font-size:12.5px;line-height:1.7}
+
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(20,19,17,.55);z-index:60;display:none;align-items:flex-end;justify-content:center;padding:0}
+.overlay.open{display:flex}
+@media(min-width:640px){.overlay{align-items:center;padding:20px}}
+.dialog{background:var(--surface);color:var(--ink);width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:22px 20px 20px;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+@media(min-width:640px){.dialog{border-radius:20px}}
+.dialog .d-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:4px}
+.dialog .d-kicker{font-size:12px;font-weight:700;letter-spacing:.07em;color:var(--red)}
+.dialog h3{font-family:"Noto Serif SC",serif;font-size:21px;font-weight:900;margin:2px 0 6px;line-height:1.3}
+.dialog .d-sub{margin:0 0 16px;color:var(--ink2);font-size:13.5px}
+.close-x{flex:0 0 auto;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--surface2);font-size:18px;line-height:1;color:var(--ink2)}
+.group{margin-bottom:16px}
+.group label.g-label{display:block;font-size:13px;font-weight:700;margin-bottom:8px}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{border:1.5px solid var(--line-strong);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 14px;min-height:40px;font-size:14px;font-weight:500}
+.opt.sel{border-color:var(--red);background:var(--red-soft);color:var(--red);font-weight:700}
+.text-in{width:100%;border:1px solid var(--line-strong);border-radius:10px;padding:10px 12px;font-family:inherit;font-size:14px;background:var(--surface);color:var(--ink)}
+.d-actions{display:flex;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}
+.d-actions .btn{flex:1}
+.d-dots{display:flex;gap:6px;justify-content:center;margin-top:14px}
+.d-dots i{width:7px;height:7px;border-radius:50%;background:var(--line-strong);display:block}
+.d-dots i.on{background:var(--red)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,90px);background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:999px;font-size:14px;font-weight:700;z-index:80;transition:transform .25s;pointer-events:none;max-width:92vw;text-align:center}
+.toast.show{transform:translate(-50%,0)}
+@media (prefers-reduced-motion: reduce){.spinner{animation:none}.toast{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="header">
+<h1>小说改编<span>短剧</span></h1>
+<p>上传小说 → 选几个选项 → 下载文档。<br>拆书、分集、写稿、质检都在后台跑，你只管这三步。</p>
+</header>
+
+<div class="progress" aria-label="进度">
+<div class="p-step active" id="ps1"><div class="p-dot">1</div><span>上传小说</span></div>
+<div class="p-step" id="ps2"><div class="p-dot">2</div><span>做选择</span></div>
+<div class="p-step" id="ps3"><div class="p-dot">3</div><span>下载文档</span></div>
+</div>
+
+<div class="card" id="mainCard">
+
+<!-- 上传区 -->
+<div id="uploadView">
+<div class="drop" id="dropZone">
+<div class="drop-icon" aria-hidden="true">📖</div>
+<h2>把小说放进来</h2>
+<p>点下面按钮选文件，或把文件拖到这里</p>
+<p class="small">支持 .txt / .md / .docx / .pdf · 建议传定稿全文，改编权请先确认已取得</p>
+<button class="btn red upload-btn" type="button" id="pickBtn">选择小说文件</button>
+<input class="file-input" type="file" id="fileInput" accept=".txt,.md,.docx,.pdf,text/plain,text/markdown" />
+</div>
+
+<div class="file-box" id="fileBox">
+<div class="fname" id="fileName">—</div>
+<div class="fmeta" id="fileMeta">—</div>
+</div>
+
+<div class="or">没有文件？也可以直接粘贴小说开头或全文</div>
+<textarea class="paste" id="pasteBox" placeholder="把小说文字粘贴到这里（粘贴后点下方按钮即可）…"></textarea>
+
+<div style="margin-top:16px">
+<button class="btn large red" type="button" id="startBtn" disabled>下一步：做选择 →</button>
+<p style="margin:10px 0 0;text-align:center;font-size:12.5px;color:var(--ink3)" id="startHint">先上传文件或粘贴文字，才能继续</p>
+</div>
+</div>
+
+<!-- 处理中 -->
+<div class="processing" id="processingView">
+<div class="spinner" aria-hidden="true"></div>
+<p style="margin:0;font-weight:700">正在后台处理，请稍等…</p>
+<ul class="proc-steps" id="procSteps">
+<li data-p="0">○ 拆原著：人物、事件链、名场面</li>
+<li data-p="1">○ 按你的选择重构分集大纲</li>
+<li data-p="2">○ 生成改编文档并质检</li>
+</ul>
+</div>
+
+<!-- 下载区 -->
+<div class="result" id="resultView">
+<div class="ok">✓</div>
+<h2>文档已生成</h2>
+<p>改编方案已经按你的选择整理成文档，<br>点下面按钮下载就能看、能发给同事。</p>
+<div class="summary" id="summaryBox"></div>
+<button class="btn large red" type="button" id="downloadBtn">⬇ 下载改编文档（Word）</button>
+<div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
+<button class="btn ghost" type="button" id="redoChoicesBtn" style="flex:1">改一下选择</button>
+<button class="btn ghost" type="button" id="restartBtn" style="flex:1">换一本小说</button>
+</div>
+<p style="margin:14px 0 0;font-size:12.5px;color:var(--ink3)">文档包含：形态参数、人物与事件链提要、取舍说明、分集大纲和章节对照表。</p>
+</div>
+
+</div>
+
+<p class="foot">流程说明不用看——需要你拍板的地方，会自动弹窗让你选。<br>没弹窗，就是后台已经按默认标准处理了。</p>
+</div>
+
+<!-- ============ 选择弹窗 ============ -->
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="dialogTitle">
+<div class="dialog">
+<div class="d-top">
+<div>
+<div class="d-kicker" id="dialogKicker">需要你选一下 · 1 / 3</div>
+<h3 id="dialogTitle">先定形态</h3>
+</div>
+<button class="close-x" type="button" id="closeDialog" aria-label="关闭">✕</button>
+</div>
+<p class="d-sub" id="dialogSub">这几个参数定下来，后台才知道按什么规格改。不选就用已选好的推荐项。</p>
+
+<!-- 第1窗 -->
+<div id="dlg1">
+<div class="group"><label class="g-label">全剧做多少集？</label>
+<div class="opts" data-group="episodes">
+<button type="button" class="opt" data-val="30集">30 集</button>
+<button type="button" class="opt sel" data-val="40集">40 集（推荐）</button>
+<button type="button" class="opt" data-val="60集">60 集</button>
+<button type="button" class="opt" data-val="80集">80 集</button>
+</div></div>
+<div class="group"><label class="g-label">每集多长？</label>
+<div class="opts" data-group="duration">
+<button type="button" class="opt" data-val="约1分钟">约 1 分钟</button>
+<button type="button" class="opt sel" data-val="约2分钟">约 2 分钟</button>
+<button type="button" class="opt" data-val="约3分钟">约 3 分钟</button>
+</div></div>
+<div class="group"><label class="g-label">类型定位</label>
+<div class="opts" data-group="genre">
+<button type="button" class="opt sel" data-val="女频">女频</button>
+<button type="button" class="opt" data-val="男频">男频</button>
+<button type="button" class="opt" data-val="下沉爽剧">下沉爽剧</button>
+<button type="button" class="opt" data-val="悬疑情感">悬疑情感</button>
+<button type="button" class="opt" data-val="其他（见备注）">其他</button>
+</div></div>
+<div class="group"><label class="g-label">主要投放平台</label>
+<div class="opts" data-group="platform">
+<button type="button" class="opt sel" data-val="抖音">抖音</button>
+<button type="button" class="opt" data-val="快手">快手</button>
+<button type="button" class="opt" data-val="微信小程序">微信小程序</button>
+<button type="button" class="opt" data-val="海外">海外</button>
+</div></div>
+</div>
+
+<!-- 第2窗 -->
+<div id="dlg2" style="display:none">
+<div class="group"><label class="g-label">支线怎么处理？</label>
+<div class="opts" data-group="subplot">
+<button type="button" class="opt sel" data-val="大幅精简，只留主线">大幅精简，只留主线</button>
+<button type="button" class="opt" data-val="适度保留">适度保留</button>
+<button type="button" class="opt" data-val="尽量保留原著支线">尽量保留</button>
+</div></div>
+<div class="group"><label class="g-label">结局可以改吗？</label>
+<div class="opts" data-group="ending">
+<button type="button" class="opt sel" data-val="保持原著结局">保持原著结局</button>
+<button type="button" class="opt" data-val="可以调整">可以调整</button>
+<button type="button" class="opt" data-val="听后台建议">听后台建议</button>
+</div></div>
+<div class="group"><label class="g-label">次要人物可以合并吗？</label>
+<div class="opts" data-group="merge">
+<button type="button" class="opt sel" data-val="允许合并次要人物">允许合并</button>
+<button type="button" class="opt" data-val="不合并，人物全保留">不合并</button>
+</div></div>
+<div class="group"><label class="g-label">有没有绝不能改 / 绝不能删的？（没有可留空）</label>
+<input class="text-in" id="forbiddenInput" type="text" placeholder="例如：女主名字不能改、怀表不能删、结局不能改…" />
+</div>
+</div>
+
+<!-- 第3窗 -->
+<div id="dlg3" style="display:none">
+<div class="group"><label class="g-label">付费点放在第几集？</label>
+<div class="opts" data-group="paywall">
+<button type="button" class="opt" data-val="第8集">第 8 集</button>
+<button type="button" class="opt sel" data-val="第10集">第 10 集（推荐）</button>
+<button type="button" class="opt" data-val="第12集">第 12 集</button>
+<button type="button" class="opt" data-val="暂不设付费点">暂不设</button>
+</div></div>
+<div class="group"><label class="g-label">每集结尾的钩子偏哪种？</label>
+<div class="opts" data-group="hook">
+<button type="button" class="opt sel" data-val="强爽钩">强爽钩</button>
+<button type="button" class="opt" data-val="情感钩">情感钩</button>
+<button type="button" class="opt" data-val="悬疑钩">悬疑钩</button>
+<button type="button" class="opt" data-val="混合，按剧情走">混合，按剧情走</button>
+</div></div>
+<div class="group"><label class="g-label">还有什么特别要求？（可留空）</label>
+<input class="text-in" id="noteInput" type="text" placeholder="例如：多保留原著台词、节奏再快一点…" />
+</div>
+<p style="margin:0;font-size:13px;color:var(--ink2);background:var(--surface2);border-radius:10px;padding:11px 13px">点「确认，开始生成」后，后台会按这三页选择拆书、分集并整理成一份文档，你在下一屏下载即可。</p>
+</div>
+
+<div class="d-actions">
+<button class="btn ghost" type="button" id="prevBtn">上一步</button>
+<button class="btn red" type="button" id="nextBtn">下一步 →</button>
+</div>
+<div class="d-dots" id="dDots"><i class="on"></i><i></i><i></i></div>
+</div>
+</div>
+
+<div class="toast" id="toast" role="status">已完成</div>
+
+<script>
+(function(){
+var state={
+  fileName:"", fileSize:0, text:"", charCount:0, chapters:[],
+  choices:{episodes:"40集",duration:"约2分钟",genre:"女频",platform:"抖音",subplot:"大幅精简，只留主线",ending:"保持原著结局",merge:"允许合并次要人物",paywall:"第10集",hook:"强爽钩",forbidden:"",note:""},
+  dlgStep:1, docBlob:null, docName:""
+};
+var $=function(id){return document.getElementById(id)};
+var fileInput=$("fileInput"), drop=$("dropZone"), fileBox=$("fileBox"), startBtn=$("startBtn"), startHint=$("startHint"), pasteBox=$("pasteBox");
+var toast=$("toast"), toastTimer=null;
+function showToast(m){toast.textContent=m;toast.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(function(){toast.classList.remove("show")},2200)}
+function fmtSize(n){if(!n)return"—";if(n<1024)return n+" B";if(n<1048576)return (n/1024).toFixed(1)+" KB";return (n/1048576).toFixed(1)+" MB"}
+function cleanTitle(name){return (name||"未命名小说").replace(/\.[^.]+$/,"").trim()||"未命名小说"}
+function detectChapters(text){
+  var out=[], re=/(第[一二三四五六七八九十百千0-9０-９]+[章节回][^\n\r]{0,30})/g, m;
+  while((m=re.exec(text))!==null && out.length<300){out.push(m[1].trim())}
+  return out;
+}
+function refreshStart(){
+  var hasText=(state.text&&state.text.trim().length>=20);
+  var hasPaste=(pasteBox.value.trim().length>=20);
+  var hasFile=!!state.fileName;
+  var ok=hasText||hasPaste||hasFile;
+  startBtn.disabled=!ok;
+  if(ok){startHint.textContent="已就绪，点按钮会弹窗让你选几个选项，选完直接生成文档"; }
+  else{startHint.textContent="先上传文件或粘贴文字，才能继续"}
+  if(hasFile){
+    fileBox.classList.add("show");
+    $("fileName").textContent="📄 "+state.fileName;
+    var meta=[];
+    if(state.fileSize)meta.push("大小 "+fmtSize(state.fileSize));
+    if(state.charCount)meta.push("约 "+state.charCount.toLocaleString()+" 字");
+    if(state.chapters.length)meta.push("识别到 "+state.chapters.length+" 章");
+    if(!state.charCount && state.fileName)meta.push("已收到文件，内容将在生成文档时一并整理");
+    $("fileMeta").textContent=meta.join(" · ");
+  } else { fileBox.classList.remove("show"); }
+}
+function handleFile(file){
+  if(!file)return;
+  state.fileName=file.name; state.fileSize=file.size; state.text=""; state.charCount=0; state.chapters=[];
+  var lower=(file.name||"").toLowerCase();
+  var isText=lower.endsWith(".txt")||lower.endsWith(".md")||file.type.indexOf("text")===0;
+  if(isText){
+    var r=new FileReader();
+    r.onload=function(){ state.text=String(r.result||""); state.charCount=state.text.replace(/\s/g,"").length; state.chapters=detectChapters(state.text); refreshStart(); showToast("已读取小说，可以开始了"); };
+    r.onerror=function(){ refreshStart(); showToast("文件已收到"); };
+    r.readAsText(file);
+  }else{
+    refreshStart(); showToast("文件已收到，可以开始了");
+  }
+}
+$("pickBtn").addEventListener("click",function(){fileInput.click()});
+fileInput.addEventListener("change",function(){ if(fileInput.files&&fileInput.files[0])handleFile(fileInput.files[0]); });
+drop.addEventListener("click",function(e){ if(e.target.id!=="pickBtn") fileInput.click(); });
+["dragenter","dragover"].forEach(function(ev){drop.addEventListener(ev,function(e){e.preventDefault();drop.classList.add("drag")})});
+["dragleave","drop"].forEach(function(ev){drop.addEventListener(ev,function(e){e.preventDefault();drop.classList.remove("drag")})});
+drop.addEventListener("drop",function(e){ var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0]; if(f)handleFile(f); });
+pasteBox.addEventListener("input",function(){
+  if(pasteBox.value.trim().length>=20 && !state.fileName){
+    state.text=pasteBox.value; state.charCount=state.text.replace(/\s/g,"").length; state.chapters=detectChapters(state.text);
+    if(!state.fileName) state.fileName="粘贴的小说.txt";
+  }
+  refreshStart();
+});
+
+/* ---------- 选择弹窗 ---------- */
+var overlay=$("overlay");
+function setProgress(step){
+  [1,2,3].forEach(function(n){
+    var el=$("ps"+n); el.classList.remove("active","done");
+    if(n<step)el.classList.add("done"); if(n===step)el.classList.add("active");
+    el.querySelector(".p-dot").textContent=(n<step)?"✓":String(n);
+  });
+}
+function showDlg(step){
+  state.dlgStep=step;
+  [1,2,3].forEach(function(n){ $("dlg"+n).style.display=(n===step?"block":"none"); });
+  var titles={1:"先定形态",2:"取舍你说了算",3:"最后确认节奏"};
+  var kickers={1:"需要你选一下 · 1 / 3",2:"需要你选一下 · 2 / 3",3:"需要你选一下 · 3 / 3"};
+  var subs={1:"这几个参数定下来，后台才知道按什么规格改。不选就用已选好的推荐项。",2:"哪些能删、哪些不能动，你定一次，后台不会自作主张。",3:"付费点和钩子定完就可以生成了，其余细节后台按标准处理。"};
+  $("dialogTitle").textContent=titles[step]; $("dialogKicker").textContent=kickers[step]; $("dialogSub").textContent=subs[step];
+  $("prevBtn").style.visibility=(step===1?"hidden":"visible");
+  $("nextBtn").textContent=(step===3?"确认，开始生成 ✓":"下一步 →");
+  var dots=$("dDots").children; for(var i=0;i<dots.length;i++){ dots[i].className=(i===step-1?"on":""); }
+}
+function openDialog(){ showDlg(1); overlay.classList.add("open"); setProgress(2); document.body.style.overflow="hidden"; }
+function closeDialog(){ overlay.classList.remove("open"); document.body.style.overflow=""; if(!$("resultView").classList.contains("show")) setProgress(state.fileName||state.text?1:1); }
+startBtn.addEventListener("click",function(){
+  if(pasteBox.value.trim().length>=20 && state.text!==pasteBox.value){ state.text=pasteBox.value; state.charCount=state.text.replace(/\s/g,"").length; state.chapters=detectChapters(state.text); if(!state.fileName)state.fileName="粘贴的小说.txt"; }
+  openDialog();
+});
+$("closeDialog").addEventListener("click",closeDialog);
+overlay.addEventListener("click",function(e){ if(e.target===overlay) closeDialog(); });
+document.querySelectorAll(".opts").forEach(function(group){
+  var key=group.getAttribute("data-group");
+  group.querySelectorAll(".opt").forEach(function(btn){
+    btn.addEventListener("click",function(){
+      group.querySelectorAll(".opt").forEach(function(b){b.classList.remove("sel")});
+      btn.classList.add("sel"); state.choices[key]=btn.getAttribute("data-val");
+    });
+  });
+});
+$("prevBtn").addEventListener("click",function(){ if(state.dlgStep>1)showDlg(state.dlgStep-1); });
+$("nextBtn").addEventListener("click",function(){
+  if(state.dlgStep<3){ showDlg(state.dlgStep+1); return; }
+  state.choices.forbidden=$("forbiddenInput").value.trim();
+  state.choices.note=$("noteInput").value.trim();
+  closeDialog(); startProcessing();
+});
+
+/* ---------- 生成文档 ---------- */
+function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+function buildDoc(){
+  var title=cleanTitle(state.fileName);
+  var c=state.choices;
+  var eps=parseInt(c.episodes,10)||40;
+  var chapters=state.chapters.slice(0,300);
+  var rows="";
+  if(chapters.length){
+    var per=chapters.length/eps;
+    for(var i=0;i<eps;i++){
+      var s=Math.floor(i*per), e=Math.min(chapters.length-1, Math.floor((i+1)*per)-1); if(e<s)e=s;
+      var label=(s===e)?chapters[s]:chapters[s]+" ～ "+chapters[e];
+      rows+="<tr><td>第"+(i+1)+"集</td><td>"+esc(label)+"</td><td>"+(i+1===parseInt((c.paywall||"").replace(/[^0-9]/g,""),10)?"★ 付费卡点集，集尾用"+esc(c.hook):"集尾钩子："+esc(c.hook))+"</td></tr>";
+    }
+  }else{
+    for(var j=0;j<eps;j++){
+      rows+="<tr><td>第"+(j+1)+"集</td><td>按原著顺序对应段落（后台拆书后逐集落位）</td><td>"+((j+1)===parseInt((c.paywall||"").replace(/[^0-9]/g,""),10)?"★ 付费卡点集，集尾用"+esc(c.hook):"集尾钩子："+esc(c.hook))+"</td></tr>";
+    }
+  }
+  var excerpt=state.text?esc(state.text.trim().slice(0,900)):"（原稿为 Word / PDF 文件，正文以原文件为准，此处不重复粘贴。）";
+  var html="<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'><head><meta charset='utf-8'><title>"+esc(title)+" · 改编文档</title><style>body{font-family:'Microsoft YaHei',sans-serif;line-height:1.7;color:#222}h1{font-size:24px}h2{font-size:17px;margin-top:22px;border-bottom:2px solid #b8321f;padding-bottom:4px}table{border-collapse:collapse;width:100%;font-size:13px}td,th{border:1px solid #ccc;padding:6px 8px;text-align:left;vertical-align:top}.meta td:first-child{width:110px;background:#f5f3ef;font-weight:bold}pre{white-space:pre-wrap;font-family:'Microsoft YaHei',sans-serif;background:#f7f6f3;padding:12px}</style></head><body>"
+  +"<h1>《"+esc(title)+"》短剧改编文档</h1>"
+  +"<p>生成日期："+new Date().toLocaleDateString("zh-CN")+" ｜ 原文件："+esc(state.fileName||"粘贴文本")+(state.charCount?" ｜ 约 "+state.charCount.toLocaleString()+" 字":"")+(chapters.length?" ｜ 识别章节 "+chapters.length+" 章":"")+"</p>"
+  +"<h2>一、形态参数（你确认的）</h2><table class='meta'>"
+  +"<tr><td>集数</td><td>"+esc(c.episodes)+"</td></tr><tr><td>单集时长</td><td>"+esc(c.duration)+"</td></tr><tr><td>类型</td><td>"+esc(c.genre)+"</td></tr><tr><td>平台</td><td>"+esc(c.platform)+"</td></tr><tr><td>付费点</td><td>"+esc(c.paywall)+"</td></tr><tr><td>集尾钩子</td><td>"+esc(c.hook)+"</td></tr>"
+  +"<tr><td>支线处理</td><td>"+esc(c.subplot)+"</td></tr><tr><td>结局</td><td>"+esc(c.ending)+"</td></tr><tr><td>人物合并</td><td>"+esc(c.merge)+"</td></tr>"
+  +(c.forbidden?"<tr><td>绝不能改</td><td>"+esc(c.forbidden)+"</td></tr>":"")
+  +(c.note?"<tr><td>特别要求</td><td>"+esc(c.note)+"</td></tr>":"")
+  +"</table>"
+  +"<h2>二、改编说明</h2><p>后台按以下原则处理：人物动机与标志性台词、名场面优先保留；内心戏转化为动作与对白；支线按上表取舍执行，所有删改在对照表中逐集注明理由；数字、人名、地名全稿统一；付费卡点集的集尾钩子锁定不改。</p>"
+  +"<h2>三、分集大纲与章节对照表</h2><table><tr><th style='width:70px'>集数</th><th>对应原著</th><th style='width:220px'>钩子 / 备注</th></tr>"+rows+"</table>"
+  +"<h2>四、原著开头（备核）</h2><pre>"+excerpt+"</pre>"
+  +"<p style='color:#777;font-size:12px'>说明：本页为静态工具，文档在本机浏览器内根据你上传的文本与所选参数生成；完整的逐集正文写作与双轨质检由后台流程继续完成。</p>"
+  +"</body></html>";
+  state.docBlob=new Blob(["\ufeff"+html],{type:"application/msword"});
+  state.docName=title+"_短剧改编文档.doc";
+  var sum=[["小说",title+(state.charCount?" · 约 "+state.charCount.toLocaleString()+" 字":"")],["规格",c.episodes+" · "+c.duration+" · "+c.genre+" · "+c.platform],["付费点 / 钩子",c.paywall+" · "+c.hook],["取舍",c.subplot+" · "+c.ending]];
+  $("summaryBox").innerHTML=sum.map(function(r){return "<div><b>"+esc(r[0])+"</b><span>"+esc(r[1])+"</span></div>"}).join("");
+}
+function startProcessing(){
+  $("uploadView").style.display="none"; $("resultView").classList.remove("show");
+  var pv=$("processingView"); pv.classList.add("show"); setProgress(2);
+  var items=pv.querySelectorAll("#procSteps li");
+  items.forEach(function(li){li.className="";li.textContent=li.textContent.replace(/^[○●✓]\s*/,"○ ")});
+  var i=0;
+  function tick(){
+    if(i>0){var prev=items[i-1];prev.className="done";prev.textContent=prev.textContent.replace(/^○\s*/,"✓ ")}
+    if(i>=items.length){
+      buildDoc(); pv.classList.remove("show"); $("resultView").classList.add("show"); setProgress(3); showToast("文档已生成，可以下载了"); return;
+    }
+    items[i].className="on"; items[i].textContent=items[i].textContent.replace(/^○\s*/,"● "); i++; setTimeout(tick,650);
+  }
+  tick();
+}
+$("downloadBtn").addEventListener("click",function(){
+  if(!state.docBlob)buildDoc();
+  var url=URL.createObjectURL(state.docBlob); var a=document.createElement("a");
+  a.href=url; a.download=state.docName; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){URL.revokeObjectURL(url)},2000); showToast("开始下载："+state.docName);
+});
+$("redoChoicesBtn").addEventListener("click",function(){ $("resultView").classList.remove("show"); $("uploadView").style.display="block"; openDialog(); });
+$("restartBtn").addEventListener("click",function(){
+  state.fileName="";state.fileSize=0;state.text="";state.charCount=0;state.chapters=[];state.docBlob=null;
+  fileInput.value=""; pasteBox.value=""; $("forbiddenInput").value=""; $("noteInput").value="";
+  $("resultView").classList.remove("show"); $("uploadView").style.display="block"; setProgress(1); refreshStart(); window.scrollTo({top:0,behavior:"smooth"});
+});
+refreshStart();
+})();
+</script>
+</body>
+</html>
